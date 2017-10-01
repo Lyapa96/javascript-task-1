@@ -4,49 +4,68 @@
  * @param {String} time – время в формате HH:MM (например, 09:05)
  * @returns {String} – время римскими цифрами (IX:V)
  */
-
-var rankOfTensToRomanNumber = {
-    '0': '',
-    '1': 'X',
-    '2': 'XX',
-    '3': 'XXX',
-    '4': 'XL',
-    '5': 'L'
-};
-
-var rankOfUnitsToRomanNumber = {
-    '0': '',
-    '1': 'I',
-    '2': 'II',
-    '3': 'III',
-    '4': 'IV',
-    '5': 'V',
-    '6': 'VI',
-    '7': 'VII',
-    '8': 'VIII',
-    '9': 'IX'
-};
-
-function romanTime(time) {
-    var isValid = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/.test(time);
-    if (!isValid) {
-        throw new TypeError();
+var rome = { '0': '', '1': 'I', '2': 'II', '3': 'III', '4': 'IV',
+    '5': 'V', '6': 'VI', '7': 'VII', '8': 'VIII',
+    '9': 'IX', '10': 'X', '20': 'XX', '30': 'XXX',
+    '40': 'XL', '50': 'L', '-1': 'N' };
+function findInObj(item, obj) {
+    for (var key in obj) {
+        if (Number(key) === item) {
+            return obj[key];
+        }
     }
-    var pieces = time.split(':');
-    var hours = pieces[0];
-    var minutes = pieces[1];
-
-    return getRomanNumber(hours) + ':' + getRomanNumber(minutes);
 }
 
-function getRomanNumber(number) {
-    if (number === '00') {
-        return 'N';
-    }
-    var rankOfTens = number[0];
-    var rankOfUnits = number[1];
+function romanTime(time) {
+    var hours = Number(time.split(':')[0]);
+    var minutes = Number(time.split(':')[1]);
+    time = '';
 
-    return rankOfTensToRomanNumber[rankOfTens] + rankOfUnitsToRomanNumber[rankOfUnits];
+    if (hours < 0 || hours > 23 || minutes > 59 || minutes < 0) {
+        throw new Error('Error');
+    }
+
+    if (isNaN(hours) || isNaN(minutes)) {
+        throw new Error('Error');
+    }
+
+    if (hours === 0) {
+        hours = -1
+    }
+    if (minutes === 0) {
+        minutes = -1;
+    }
+    if (hours > 10) {
+        var decimalPart = hours - (hours % 10);
+        var n = hours - decimalPart;
+
+        time += findInObj(decimalPart, rome);
+
+        if (n) {
+            time += findInObj(n, rome);
+        }
+
+    } else {
+        time += findInObj(hours, rome);
+    }
+
+    time += ':';
+
+    if (minutes > 10) {
+        var decimalPart = minutes - (minutes % 10);
+        var n = minutes - decimalPart;
+
+        time += findInObj(decimalPart, rome);
+
+        if (n) {
+            time += findInObj(n, rome);
+        }
+
+    } else {
+        time += findInObj(minutes, rome);
+    }
+
+    return time;
 }
 
 module.exports = romanTime;
